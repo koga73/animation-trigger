@@ -11,9 +11,15 @@ Just add attribute data-animation-trigger
 ```html
 <header>HEADER</header>
 <div>
-	<section id="section1" data-animation-trigger><span>Section 1</span></section>
-	<section id="section2" data-animation-trigger><span>Section 2</span></section>
-	<section id="section3" data-animation-trigger><span>Section 3</span></section>
+	<section data-animation-trigger>
+		<span>Section 1</span>
+	</section>
+	<section data-animation-trigger>
+		<span>Section 2</span>
+	</section>
+	<section data-animation-trigger>
+		<span>Section 3</span>
+	</section>
 </div>
 <footer>FOOTER</footer>
 ```
@@ -45,12 +51,12 @@ console.log("Initially active:", initialActive);
 var els = animTrig.getEls();
 for (var i = 0; i < els.length; i++){
 	var el = els[i];
-	
+
 	//Listen for visibility change
 	el.addEventListener(animTrig.eventChangeVisible, function(evt){
 		console.log("Visibility change", evt, evt.detail);
 	});
-	
+
 	//Listen for active change
 	el.addEventListener(animTrig.eventChangeActive, function(evt){
 		console.log("Active change", evt, evt.detail);

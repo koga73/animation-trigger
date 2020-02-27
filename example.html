@@ -49,17 +49,27 @@
 				opacity:1;
 			}
 		</style>
-		
+
 	</head>
 	<body>
-	
-		<header data-animation-trigger><span>HEADER</span></header>
+
+		<header data-animation-trigger>
+			<span>HEADER</span>
+		</header>
 		<div>
-			<section id="section1" data-animation-trigger><span>Section 1</span></section>
-			<section id="section2" data-animation-trigger><span>Section 2</span></section>
-			<section id="section3" data-animation-trigger><span>Section 3</span></section>
+			<section id="section1" data-animation-trigger>
+				<span>Section 1</span>
+			</section>
+			<section id="section2" data-animation-trigger>
+				<span>Section 2</span>
+			</section>
+			<section id="section3" data-animation-trigger>
+				<span>Section 3</span>
+			</section>
 		</div>
-		<footer data-animation-trigger><span>FOOTER</span></footer>
+		<footer data-animation-trigger>
+			<span>FOOTER</span>
+		</footer>
 
 
 		<!-- CustomEvent polyfill for IE11 -->
@@ -79,34 +89,34 @@
 				window.CustomEvent = CustomEvent;
 			})();
 		</script>
-		
+
 		<!-- Resizer from https://github.com/koga73/Resizer -->
 		<!-- This caches on resize, if you exclude it will still work just no cache -->
 		<script src="js/resizer.js"></script>
-		
-		
+
+
 		<script src="js/animation-trigger.js"></script>
 		<script>
 			var animTrig = new AnimationTrigger();
-			
+
 			//If you want to grab initially visible
 			var initialVisible = animTrig.getVisible();
 			console.log("Initially visible:", initialVisible);
-			
+
 			//If you want to grab initially active
 			var initialActive = animTrig.getActive();
 			console.log("Initially active:", initialActive);
-			
+
 			//If you want to register events when visible or active changes
 			var els = animTrig.getEls();
 			for (var i = 0; i < els.length; i++){
 				var el = els[i];
-				
+
 				//Listen for visibility change
 				el.addEventListener(animTrig.eventChangeVisible, function(evt){
 					console.log("Visibility change", evt, evt.detail);
 				});
-				
+
 				//Listen for active change
 				el.addEventListener(animTrig.eventChangeActive, function(evt){
 					console.log("Active change", evt, evt.detail);
