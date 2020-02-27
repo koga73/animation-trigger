@@ -3,46 +3,47 @@
 * https://github.com/koga73/animation-trigger
 * MIT License
 */
-var AnimationTrigger = function(el){
-	el = el || document;
-	
+//You can pass in "params" object to overwrite properties on instance
+//Additionally you can change the scope from document to custom via params.el
+var AnimationTrigger = function(params){
 	var _instance = null;
-	
+
 	var _vars = {
+		attributeAnimTrig:AnimationTrigger.DEFAULT_ATTRIBUTE_ANIM_TRIG,
+
 		events:true, //Fire events
-		eventChangeVisible:"animation-trigger-visible",
-		eventChangeActive:"animation-trigger-active",
-		
-		attributeAnimTrig:"data-animation-trigger",
-		classVisible:"animation-trigger-visible",
-		classActive:"animation-trigger-active",
+		eventChangeVisible:AnimationTrigger.DEFAULT_EVENT_CHANGE_VISIBLE,
+		eventChangeActive:AnimationTrigger.DEFAULT_EVENT_CHANGE_ACTIVE,
+
+		classVisible:AnimationTrigger.DEFAULT_CLASS_VISIBLE,
+		classActive:AnimationTrigger.DEFAULT_CLASS_ACTIVE,
+
 		scrollDebounce:200, //ms
-		
+
 		_el:null,
 		_animEls:[],
 		_animElsBounds:[], //Cache
 		_resizer:null,
 		_scrollTimeout:0
 	};
-	
+
 	var _methods = {
 		init:function(el){
+			el = el || document;
 			_vars._el = el;
-			
+
 			if (typeof Resizer !== typeof undefined){
 				_vars._resizer = new Resizer({onResize:_methods._handler_resize});
 			}
-			
-			_instance.updateCache();
+
+			_instance.updateEls();
 			_instance.evalVisibility();
 			_instance.evalActive();
-			
-			_vars._el.addEventListener("scroll", _methods._handler_scroll);
 		},
-		
-		destroy:function(){	
+
+		destroy:function(){
 			_vars._el.removeEventListener("scroll", _methods._handler_scroll);
-			
+
 			clearTimeout(_vars._scrollTimeout);
 			if (_vars._resizer){
 				_vars._resizer.destroy();
@@ -52,28 +53,33 @@ var AnimationTrigger = function(el){
 			_vars._animEls = [];
 			_vars._el = null;
 		},
-		
+
 		getEls:function(){
 			return _vars._animEls;
 		},
-		
+
 		getVisible:function(){
 			return _vars._el.querySelectorAll("." + _instance.classVisible);
 		},
-		
+
 		getActive:function(){
 			return _vars._el.querySelector("." + _instance.classActive);
 		},
-		
-		updateCache:function(){
+
+		updateEls:function(){
 			_vars._animEls = _vars._el.querySelectorAll("[" + _instance.attributeAnimTrig + "]");
-			
-			if (typeof Resizer === typeof undefined){
+			if (_vars._animEls.length){
+				_vars._el.addEventListener("scroll", _methods._handler_scroll);
+			} else {
+				_vars._el.removeEventListener("scroll", _methods._handler_scroll);
+			}
+
+			if (!_vars._resizer){
 				console.warn("Resizer excluded - cache disabled");
 				_vars._animElsBounds = null;
 				return;
 			}
-			
+
 			//Cache bounds
 			_vars._animElsBounds = [];
 			for (var i = 0; i < _vars._animEls.length; i++){
@@ -81,7 +87,7 @@ var AnimationTrigger = function(el){
 				_vars._animElsBounds.push(_methods._getBounds(animEl));
 			}
 		},
-		
+
 		_getBounds:function(el){
 			return [
 				el.offsetLeft, //Left
@@ -90,7 +96,7 @@ var AnimationTrigger = function(el){
 				el.offsetTop + el.clientHeight, //Bottom
 			];
 		},
-		
+
 		isVisible:function(el){
 			var scrollBounds = _methods._getScrollBounds();
 			var elIndex = -1;
@@ -108,7 +114,7 @@ var AnimationTrigger = function(el){
 			} else {
 				elBounds = _methods._getBounds(el);
 			}
-			
+
 			//Check bounding box
 			var inBoundX = (elBounds[0] >= scrollBounds[0] && elBounds[0] <= scrollBounds[2]) || (elBounds[2] >= scrollBounds[0] && elBounds[2] <= scrollBounds[2]);
 			var inBoundY = (elBounds[1] >= scrollBounds[1] && elBounds[1] <= scrollBounds[3]) || (elBounds[3] >= scrollBounds[1] && elBounds[3] <= scrollBounds[3]);
@@ -117,7 +123,7 @@ var AnimationTrigger = function(el){
 			}
 			return false;
 		},
-		
+
 		_handler_scroll:function(evt){
 			//Debounce
 			if (_vars._scrollTimeout){
@@ -125,16 +131,16 @@ var AnimationTrigger = function(el){
 			}
 			_vars._scrollTimeout = setTimeout(_methods._handler_scroll_timeout, _instance.scrollDebounce);
 		},
-		
+
 		_handler_scroll_timeout:function(){
 			clearTimeout(_vars._scrollTimeout);
-			
+
 			_instance.evalVisibility();
 			_instance.evalActive();
 		},
-		
+
 		_handler_resize:function(width, height){
-			_instance.updateCache();
+			_instance.updateEls();
 			_instance.evalVisibility();
 			_instance.evalActive();
 		},
@@ -158,7 +164,7 @@ var AnimationTrigger = function(el){
 				];
 			}
 		},
-		
+
 		//Active is closest distance between elBounds and scrollBounds
 		//This evaluates what is active and adds classes + fires events
 		evalActive:function(){
@@ -167,7 +173,7 @@ var AnimationTrigger = function(el){
 				scrollBounds[0] + Math.abs(scrollBounds[2] - scrollBounds[0]),
 				scrollBounds[1] + Math.abs(scrollBounds[3] - scrollBounds[1])
 			];
-			
+
 			var closestIndex = -1;
 			var closestDist = -1;
 			for (var i = 0; i < _vars._animEls.length; i++){
@@ -192,7 +198,7 @@ var AnimationTrigger = function(el){
 					closestIndex = i;
 				}
 			}
-			
+
 			//Classes + events
 			for (var i = 0; i < _vars._animEls.length; i++){
 				var animEl = _vars._animEls[i];
@@ -221,7 +227,7 @@ var AnimationTrigger = function(el){
 				}
 			}
 		},
-		
+
 		//This evaluates what is visible and adds classes + fires events
 		evalVisibility:function(){
 			var dirtyEls = [];
@@ -260,28 +266,51 @@ var AnimationTrigger = function(el){
 			}
 		}
 	};
-	
+
 	_instance = {
+		attributeAnimTrig:_vars.attributeAnimTrig,
+
 		events:_vars.events,
 		eventChangeVisible:_vars.eventChangeVisible,
 		eventChangeActive:_vars.eventChangeActive,
-		
-		attributeAnimTrig:_vars.attributeAnimTrig,
+
 		classVisible:_vars.classVisible,
 		classActive:_vars.classActive,
-		
+
 		scrollDebounce:_vars.scrollDebounce,
-		
+
 		init:_methods.init,
 		destroy:_methods.destroy,
 		getEls:_methods.getEls,
 		getVisible:_methods.getVisible,
 		getActive:_methods.getActive,
-		updateCache:_methods.updateCache,
+		updateEls:_methods.updateEls,
 		isVisible:_methods.isVisible,
 		evalVisibility:_methods.evalVisibility,
 		evalActive:_methods.evalActive
 	};
+
+	//Apply params
+	var el = null;
+	if (params){
+		for (var param in params){
+			_instance[param] = params[param];
+		}
+		el = param.el || null;
+	}
 	_instance.init(el);
+
 	return _instance;
 };
+
+//Static
+AnimationTrigger.DEFAULT_ATTRIBUTE_ANIM_TRIG = "data-animation-trigger";
+
+AnimationTrigger.DEFAULT_EVENT_CHANGE_VISIBLE = "animation-trigger-visible";
+AnimationTrigger.DEFAULT_EVENT_CHANGE_ACTIVE = "animation-trigger-active";
+
+AnimationTrigger.DEFAULT_CLASS_VISIBLE = "animation-trigger-visible";
+AnimationTrigger.DEFAULT_CLASS_ACTIVE = "animation-trigger-active";
+
+//Export via window - change this if you want
+window.AnimationTrigger = AnimationTrigger;
