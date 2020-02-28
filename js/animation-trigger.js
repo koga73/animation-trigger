@@ -1,5 +1,5 @@
 /*
-* animation-trigger v1.0.0 Copyright (c) 2020 AJ Savino
+* animation-trigger v1.1.0 Copyright (c) 2020 AJ Savino
 * https://github.com/koga73/animation-trigger
 * MIT License
 */
@@ -11,12 +11,14 @@ var AnimationTrigger = function(params){
 	var _vars = {
 		attributeAnimTrig:AnimationTrigger.DEFAULT_ATTRIBUTE_ANIM_TRIG,
 
-		events:true, //Fire events
+		events:false, //Fire events
 		eventChangeVisible:AnimationTrigger.DEFAULT_EVENT_CHANGE_VISIBLE,
 		eventChangeActive:AnimationTrigger.DEFAULT_EVENT_CHANGE_ACTIVE,
 
 		classVisible:AnimationTrigger.DEFAULT_CLASS_VISIBLE,
+		classShown:AnimationTrigger.DEFAULT_CLASS_SHOWN,
 		classActive:AnimationTrigger.DEFAULT_CLASS_ACTIVE,
+		classActivated:AnimationTrigger.DEFAULT_CLASS_ACTIVATED,
 
 		scrollDebounce:200, //ms
 
@@ -62,8 +64,16 @@ var AnimationTrigger = function(params){
 			return _vars._el.querySelectorAll("." + _instance.classVisible);
 		},
 
+		getShown:function(){
+			return _vars._el.querySelectorAll("." + _instance.classShown);
+		},
+
 		getActive:function(){
 			return _vars._el.querySelector("." + _instance.classActive);
+		},
+
+		getActivated:function(){
+			return _vars._el.querySelector("." + _instance.classActivated);
 		},
 
 		updateEls:function(){
@@ -126,10 +136,14 @@ var AnimationTrigger = function(params){
 
 		_handler_scroll:function(evt){
 			//Debounce
-			if (_vars._scrollTimeout){
-				clearTimeout(_vars._scrollTimeout);
+			if (_instance.scrollDebounce){
+				if (_vars._scrollTimeout){
+					clearTimeout(_vars._scrollTimeout);
+				}
+				_vars._scrollTimeout = setTimeout(_methods._handler_scroll_timeout, _instance.scrollDebounce);
+			} else {
+				_methods._handler_scroll_timeout();
 			}
-			_vars._scrollTimeout = setTimeout(_methods._handler_scroll_timeout, _instance.scrollDebounce);
 		},
 
 		_handler_scroll_timeout:function(){
@@ -205,6 +219,9 @@ var AnimationTrigger = function(params){
 				if (i == closestIndex){
 					if (!animEl.classList.contains(_instance.classActive)){
 						animEl.classList.add(_instance.classActive);
+						if (!animEl.classList.contains(_instance.classActivated)){
+							animEl.classList.add(_instance.classActivated);
+						}
 						if (_instance.events){
 							animEl.dispatchEvent(new CustomEvent(_instance.eventChangeActive, {
 								detail:{
@@ -238,6 +255,9 @@ var AnimationTrigger = function(params){
 				if (_instance.isVisible(animEl)){
 					if (!animEl.classList.contains(_instance.classVisible)){
 						animEl.classList.add(_instance.classVisible);
+						if (!animEl.classList.contains(_instance.classShown)){
+							animEl.classList.add(_instance.classShown);
+						}
 						dirtyEls.push({
 							el:animEl,
 							isVisible:true
@@ -275,7 +295,9 @@ var AnimationTrigger = function(params){
 		eventChangeActive:_vars.eventChangeActive,
 
 		classVisible:_vars.classVisible,
+		classShown:_vars.classShown,
 		classActive:_vars.classActive,
+		classActivated:_vars.classActivated,
 
 		scrollDebounce:_vars.scrollDebounce,
 
@@ -283,7 +305,9 @@ var AnimationTrigger = function(params){
 		destroy:_methods.destroy,
 		getEls:_methods.getEls,
 		getVisible:_methods.getVisible,
+		getShown:_methods.getShown,
 		getActive:_methods.getActive,
+		getActivated:_methods.getActivated,
 		updateEls:_methods.updateEls,
 		isVisible:_methods.isVisible,
 		evalVisibility:_methods.evalVisibility,
@@ -306,11 +330,13 @@ var AnimationTrigger = function(params){
 //Static
 AnimationTrigger.DEFAULT_ATTRIBUTE_ANIM_TRIG = "data-animation-trigger";
 
-AnimationTrigger.DEFAULT_EVENT_CHANGE_VISIBLE = "animation-trigger-visible";
-AnimationTrigger.DEFAULT_EVENT_CHANGE_ACTIVE = "animation-trigger-active";
+AnimationTrigger.DEFAULT_EVENT_CHANGE_VISIBLE = "animation-trigger-event-visible";
+AnimationTrigger.DEFAULT_EVENT_CHANGE_ACTIVE = "animation-trigger-event-active";
 
 AnimationTrigger.DEFAULT_CLASS_VISIBLE = "animation-trigger-visible";
+AnimationTrigger.DEFAULT_CLASS_SHOWN = "animation-trigger-shown";
 AnimationTrigger.DEFAULT_CLASS_ACTIVE = "animation-trigger-active";
+AnimationTrigger.DEFAULT_CLASS_ACTIVATED = "animation-trigger-activated";
 
 //Export via window - change this if you want
 window.AnimationTrigger = AnimationTrigger;

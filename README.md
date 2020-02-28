@@ -4,7 +4,9 @@ Animation trigger adds "animation-trigger-visible" and "animation-trigger-active
 Supports IE11+ with CustomEvent polyfill (in example.html)
 
 - "**animation-trigger-visible**" class indicates that the element is currently visible. *Multiple elements can be visisble*
+- "**animation-trigger-shown**" class indicates that the element has been shown. Useful for play-once animations
 - "**animation-trigger-active**" class indicates that the center of the element is closest to center of the screen. *Only one element can be active*
+- "**animation-trigger-active**" class indicates that the has been active. Useful for play-once animations
 
 ## HTML
 Just add attribute data-animation-trigger
@@ -35,7 +37,9 @@ var animTrig = new AnimationTrigger();
 More advanced if you want to know visible/active with events
 
 ```javascript
-var animTrig = new AnimationTrigger();
+var animTrig = new AnimationTrigger({
+	events:true
+});
 
 
 //If you want to grab initially visible
@@ -73,8 +77,35 @@ span {
 	transition:all 0.5s;
 	transition-delay:0.2s;
 }
-span.animation-trigger-visible {
+.animation-trigger-visible span {
 	margin-top:16px;
 	opacity:1;
 }
 ```
+
+## API Reference
+Any of these can be passed into constructor to override or called on the instance
+- **attributeAnimTrig**: String | Attribute to apply animation logic to | Default: *data-animation-trigger*
+
+- **events**: Boolean | Enable javascript events | default: *false*
+- **eventChangeVisible**: String | Event name for visibility change | default: *animation-trigger-event-visible*
+- **eventChangeActive**: String | Event name for active change | default: *animation-trigger-event-active*
+
+- **classVisible**: String | Class to add to visible elements | default: *animation-trigger-visible*
+- **classShown**: String | Class to add to shown elements | default: *animation-trigger-shown*
+- **classActive**: String | Class to add to active elements | default: *animation-trigger-active*
+- **classActivated**: String | Class to add to activated elements | default: *animation-trigger-activated*
+
+- **scrollDebounce**: Number | Time in milliseconds to wait after last scroll event before eval | default: *200*
+
+- **init**: Initialize on a container element | default: *document*
+- **destroy**: Clean up instance
+- **getEls**: Get elements in container with attributeAnimTrig
+- **getVisible**: Get elements in container with classVisible
+- **getShown**: Get elements in container with classShown
+- **getActive**: Get elements in container with classActive
+- **getActivated**: Get elements in container with classActivated
+- **updateEls**: Re-grab elements in container with attributeAnimTrig and cache bounds (cache if resizer present)
+- **isVisible**: Returns true if the element argument is currently visible based on element / container bounds comparison
+- **evalVisibility**: Check visibility of all elements in container with attributeAnimTrig and add classes/fire events
+- **evalActive**: Find active element from elements in container with attributeAnimTrig and add classes/fire events
