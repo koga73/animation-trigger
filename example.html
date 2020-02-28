@@ -97,7 +97,9 @@
 
 		<script src="js/animation-trigger.js"></script>
 		<script>
-			var animTrig = new AnimationTrigger();
+			var animTrig = new AnimationTrigger({
+				events:true
+			});
 
 			//If you want to grab initially visible
 			var initialVisible = animTrig.getVisible();
