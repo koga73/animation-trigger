@@ -1,5 +1,5 @@
 /*
-* animation-trigger v1.1.0 Copyright (c) 2020 AJ Savino
+* animation-trigger v1.1.1 Copyright (c) 2020 AJ Savino
 * https://github.com/koga73/animation-trigger
 * MIT License
 */
@@ -126,8 +126,8 @@ var AnimationTrigger = function(params){
 			}
 
 			//Check bounding box
-			var inBoundX = (elBounds[0] >= scrollBounds[0] && elBounds[0] <= scrollBounds[2]) || (elBounds[2] >= scrollBounds[0] && elBounds[2] <= scrollBounds[2]);
-			var inBoundY = (elBounds[1] >= scrollBounds[1] && elBounds[1] <= scrollBounds[3]) || (elBounds[3] >= scrollBounds[1] && elBounds[3] <= scrollBounds[3]);
+			var inBoundX = (elBounds[0] >= scrollBounds[0] && elBounds[0] <= scrollBounds[2]) || (elBounds[2] >= scrollBounds[0] && elBounds[2] <= scrollBounds[2]) || (scrollBounds[0] >= elBounds[0] && scrollBounds[0] <= elBounds[2]) || (scrollBounds[2] >= elBounds[0] && scrollBounds[2] <= elBounds[2]);
+			var inBoundY = (elBounds[1] >= scrollBounds[1] && elBounds[1] <= scrollBounds[3]) || (elBounds[3] >= scrollBounds[1] && elBounds[3] <= scrollBounds[3]) || (scrollBounds[1] >= elBounds[1] && scrollBounds[1] <= elBounds[3]) || (scrollBounds[3] >= elBounds[1] && scrollBounds[3] <= elBounds[3]);
 			if (inBoundX && inBoundY){
 				return true;
 			}
