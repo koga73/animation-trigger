@@ -1,5 +1,5 @@
 /*
-* animation-trigger v1.1.1 Copyright (c) 2020 AJ Savino
+* animation-trigger v1.1.2 Copyright (c) 2020 AJ Savino
 * https://github.com/koga73/animation-trigger
 * MIT License
 */
@@ -99,35 +99,35 @@ var AnimationTrigger = function(params){
 		},
 
 		_getBounds:function(el){
-			return [
-				el.offsetLeft, //Left
-				el.offsetTop, //Top
-				el.offsetLeft + el.clientWidth, //Right
-				el.offsetTop + el.clientHeight, //Bottom
-			];
-		},
-
-		isVisible:function(el){
-			var scrollBounds = _methods._getScrollBounds();
-			var elIndex = -1;
+			//From cache
+			var bounds = null;
 			if (_vars._animElsBounds){
-				for (var i = 0; i < _vars._animEls.length; i++){
+				var animElsBoundsLen = _vars._animElsBounds.length;
+				for (var i = 0; i < animElsBoundsLen; i++){
 					if (_vars._animEls[i] == el){
-						elIndex = i;
+						bounds = _vars._animElsBounds[i];
 						break;
 					}
 				}
 			}
-			var elBounds;
-			if (elIndex != -1){
-				elBounds = _vars._animElsBounds[elIndex];
-			} else {
-				elBounds = _methods._getBounds(el);
+			if (!bounds){
+				bounds = [
+					el.offsetLeft, //Left
+					el.offsetTop, //Top
+					el.offsetLeft + el.clientWidth, //Right
+					el.offsetTop + el.clientHeight, //Bottom
+				];
 			}
+			return bounds;
+		},
+
+		isVisible:function(el){
+			var scrollBounds = _methods._getScrollBounds();
+			var elBounds = _methods._getBounds(el);
 
 			//Check bounding box
-			var inBoundX = (elBounds[0] >= scrollBounds[0] && elBounds[0] <= scrollBounds[2]) || (elBounds[2] >= scrollBounds[0] && elBounds[2] <= scrollBounds[2]) || (scrollBounds[0] >= elBounds[0] && scrollBounds[0] <= elBounds[2]) || (scrollBounds[2] >= elBounds[0] && scrollBounds[2] <= elBounds[2]);
-			var inBoundY = (elBounds[1] >= scrollBounds[1] && elBounds[1] <= scrollBounds[3]) || (elBounds[3] >= scrollBounds[1] && elBounds[3] <= scrollBounds[3]) || (scrollBounds[1] >= elBounds[1] && scrollBounds[1] <= elBounds[3]) || (scrollBounds[3] >= elBounds[1] && scrollBounds[3] <= elBounds[3]);
+			var inBoundX = (elBounds[0] >= scrollBounds[0] && elBounds[0] < scrollBounds[2]) || (elBounds[2] > scrollBounds[0] && elBounds[2] < scrollBounds[2]) || (scrollBounds[0] >= elBounds[0] && scrollBounds[0] < elBounds[2]) || (scrollBounds[2] > elBounds[0] && scrollBounds[2] < elBounds[2]);
+			var inBoundY = (elBounds[1] >= scrollBounds[1] && elBounds[1] < scrollBounds[3]) || (elBounds[3] > scrollBounds[1] && elBounds[3] < scrollBounds[3]) || (scrollBounds[1] >= elBounds[1] && scrollBounds[1] < elBounds[3]) || (scrollBounds[3] > elBounds[1] && scrollBounds[3] < elBounds[3]);
 			if (inBoundX && inBoundY){
 				return true;
 			}
@@ -160,23 +160,25 @@ var AnimationTrigger = function(params){
 		},
 
 		_getScrollBounds:function(){
+			var scrollBounds = null;
 			if (_vars._el == document){
 				var left = document.body.scrollLeft || document.documentElement.scrollLeft;
 				var top = document.body.scrollTop || document.documentElement.scrollTop;
-				return [
+				scrollBounds = [
 					left, //Left
 					top, //Top
 					left + window.innerWidth, //Right
 					top + window.innerHeight //Bottom
 				];
 			} else {
-				return [
+				scrollBounds = [
 					_vars._el.scrollLeft, //Left
 					_vars._el.scrollTop, //Top
-					_vars._el.scrollLeft, //Right
-					_vars._el.scrollLeft, //Bottom
+					_vars._el.scrollLeft + _vars._el.clientWidth, //Right
+					_vars._el.scrollTop + _vars._el.clientHeight, //Bottom
 				];
 			}
+			return scrollBounds;
 		},
 
 		//Active is closest distance between elBounds and scrollBounds
@@ -192,12 +194,7 @@ var AnimationTrigger = function(params){
 			var closestDist = -1;
 			for (var i = 0; i < _vars._animEls.length; i++){
 				var animEl = _vars._animEls[i];
-				var elBounds;
-				if (_vars._animElsBounds){
-					elBounds = _vars._animElsBounds[i];
-				} else {
-					elBounds = _methods._getBounds(animEl);
-				}
+				var elBounds = _methods._getBounds(animEl);
 				var elCenter = [
 					elBounds[0] + Math.abs(elBounds[2] - elBounds[0]),
 					elBounds[1] + Math.abs(elBounds[3] - elBounds[1])
